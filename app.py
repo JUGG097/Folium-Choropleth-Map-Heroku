@@ -18,6 +18,8 @@ def index():
             return "Akwa Ibom"
         elif df == "FCT":
             return "Federal Capital Territory"
+        elif df == "CrossRiver":
+            return "Cross River"
         else:
             return df
 
