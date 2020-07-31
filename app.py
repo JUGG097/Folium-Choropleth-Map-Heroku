@@ -9,9 +9,26 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    response = requests.get("https://covidnigeria.herokuapp.com/api")
+    response = requests.get("https://ncdcapi.herokuapp.com/")
     data_json = response.json()
-    dataframe = pd.DataFrame(data_json["data"]["states"])
+    
+    states = data_json["states"].keys()
+    dataframe = pd.DataFrame(states, columns = ["States"])
+
+    def get_stats(df, data):
+        if data == "confirmed":
+            case = data_json["states"][df][0]["confirmed"]
+            return int(case.replace(",", ""))
+        elif data == "discharged":
+            discharge = data_json["states"][df][0]["discharged"]
+            return int(discharge.replace(",", ""))
+        elif data == "death":
+            death = data_json["states"][df][0]["deaths"]
+            return int(death.replace(",", ""))
+    
+    dataframe["Confirmed"] = dataframe["States"].apply(get_stats, data = "confirmed")
+    dataframe["Discharged"] = dataframe["States"].apply(get_stats, data = "discharged")
+    dataframe["Death"] = dataframe["States"].apply(get_stats, data = "death")
 
     def fix_states(df):
         if df == "AkwaIbom":
@@ -23,22 +40,22 @@ def index():
         else:
             return df
 
-    dataframe["state"] = dataframe["state"].apply(fix_states)
+    dataframe["States"] = dataframe["States"].apply(fix_states)
 
     df = gpd.read_file("The_Naija_Poly.geojson")
 
     def get_cases_recover_death (df, data):
-        api_data = dataframe["state"]
+        api_data = dataframe["States"]
         if df in list(api_data):
             i = list(api_data).index(df)
             if data == "cases":
-                case = dataframe.loc[i, "confirmedCases"]
+                case = dataframe.loc[i, "Confirmed"]
                 return case
             elif data == "recover":
-                recover = dataframe.loc[i, "discharged"]
+                recover = dataframe.loc[i, "Discharged"]
                 return recover
             elif data == "death":
-                death = dataframe.loc[i, "death"]
+                death = dataframe.loc[i, "Death"]
                 return death
         else:
             return 0
