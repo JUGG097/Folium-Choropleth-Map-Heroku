@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    response = requests.get("https://ncdcapi.herokuapp.com/")
+    response = requests.get("https://ng-covid-19-api.herokuapp.com/")
     data_json = response.json()
     
     states = data_json["states"].keys()
