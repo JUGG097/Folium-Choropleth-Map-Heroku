@@ -103,5 +103,5 @@ def index():
 
     return folium_map._repr_html_()
 
-    if __name__ == "__main__":
-        app.run()
+if __name__ == "__main__":
+    app.run()
